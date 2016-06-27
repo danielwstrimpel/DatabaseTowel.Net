@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>DatabaseTowel</id>
+    <version></version>
+    <title>DatabaseTowel.Net</title>
+    <description>DatabaseTowel.Net helps keep your ADO.Net code DRY and testable.</description>
+    <authors>Daniel W strimpel</authors>
+    <language>en-US</language>
+    <projectUrl>https://github.com/danielwstrimpel/DatabaseTowel.Net</projectUrl>
+    <tags>database ADO helper</tags>
+	  <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+  </files>
+</package>
