@@ -14,10 +14,23 @@
     /// </summary>
     public class DatabaseTowel : IDatabaseTowel
     {
+        private readonly IDbProviderFactoryHelper databaseProviderFactoryHelper;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DatabaseTowel" /> class.
         /// </summary>
-        /// <param name="databaseProviderFactoryHelper"><see cref="IDbProviderFactoryHelper"/> used by the database helper.</param>
+        /// <param name="connectionString">The connection string.</param>
+        /// <param name="providerName">Name of the provider.</param>
+        public DatabaseTowel(string connectionString, string providerName)
+            : this(new DbProviderFactoryHelper(connectionString, providerName))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseTowel" /> class.
+        /// </summary>
+        /// <param name="databaseProviderFactoryHelper"><see cref="IDbProviderFactoryHelper" /> used by the database helper.</param>
+        /// <exception cref="DatabaseTowelException">The database provider factory helper is required.</exception>
         public DatabaseTowel(IDbProviderFactoryHelper databaseProviderFactoryHelper)
         {
             if (databaseProviderFactoryHelper == null)
@@ -28,10 +41,46 @@
                     new ArgumentNullException("databaseProviderFactoryHelper"));
             }
 
-            this.DatabaseProviderFactoryHelper = databaseProviderFactoryHelper;
+            this.databaseProviderFactoryHelper = databaseProviderFactoryHelper;
         }
-        
-        public IDbProviderFactoryHelper DatabaseProviderFactoryHelper { get; private set; }
+
+        /// <summary>
+        /// Creates the connection in an unopened state.
+        /// </summary>
+        /// <returns>
+        /// The connection in an unopened state.
+        /// </returns>
+        public IDbConnection CreateConnection()
+        {
+            return this.databaseProviderFactoryHelper.CreateConnection();
+        }
+
+        /// <summary>
+        /// Creates the command.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="connection">The connection.</param>
+        /// <returns>
+        /// The command.
+        /// </returns>
+        public IDbCommand CreateCommand(string commandText, IDbConnection connection)
+        {
+            return this.databaseProviderFactoryHelper.CreateCommand(commandText, connection);
+        }
+
+        /// <summary>
+        /// Creates the parameter.
+        /// </summary>
+        /// <param name="parameterName">Name of the parameter.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="databaseType">Type of the database.</param>
+        /// <returns>
+        /// The parameter.
+        /// </returns>
+        public DbParameter CreateParameter(string parameterName, object value, DbType databaseType)
+        {
+            return this.databaseProviderFactoryHelper.CreateParameter(parameterName, value, databaseType);
+        }
 
         /// <summary>
         /// Executes the SQL.
@@ -53,7 +102,7 @@
                 throw new DatabaseTowelException(DatabaseTowelExceptionType.InvalidArgument, "The errorContext parameter is required.", new ArgumentNullException("errorContext"));
             }
 
-            using (var connection = this.DatabaseProviderFactoryHelper.CreateConnection())
+            using (var connection = this.CreateConnection())
             {
                 try
                 {
@@ -96,7 +145,7 @@
                 throw new DatabaseTowelException(DatabaseTowelExceptionType.InvalidArgument, "The errorContext parameter is required.", new ArgumentNullException("errorContext"));
             }
 
-            using (var connection = this.DatabaseProviderFactoryHelper.CreateConnection())
+            using (var connection = this.CreateConnection())
             {
                 try
                 {
@@ -376,7 +425,7 @@
 
             this.ExecuteSql(connection =>
             {
-                using (var command = this.DatabaseProviderFactoryHelper.CreateCommand(storedProcedure, connection))
+                using (var command = this.CreateCommand(storedProcedure, connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddMany(parameters);
@@ -420,7 +469,7 @@
 
             await this.ExecuteSqlAsync(async connection =>
             {
-                using (var command = this.DatabaseProviderFactoryHelper.CreateCommand(storedProcedure, connection))
+                using (var command = this.CreateCommand(storedProcedure, connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
@@ -468,7 +517,7 @@
 
             this.ExecuteSql(connection =>
             {
-                using (var command = this.DatabaseProviderFactoryHelper.CreateCommand(storedProcedure, connection))
+                using (var command = this.CreateCommand(storedProcedure, connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddMany(parameters);
@@ -500,7 +549,7 @@
 
             await this.ExecuteSqlAsync(async connection =>
             {
-                using (var command = this.DatabaseProviderFactoryHelper.CreateCommand(storedProcedure, connection))
+                using (var command = this.CreateCommand(storedProcedure, connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddMany(parameters);

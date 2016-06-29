@@ -12,12 +12,34 @@
     public interface IDatabaseTowel
     {
         /// <summary>
-        /// Gets the database provider factory helper.
+        /// Creates the connection in an unopened state.
         /// </summary>
-        /// <returns></returns>
-        /// <value>Instance of the <see cref="IDbProviderFactoryHelper"/></value>
-        IDbProviderFactoryHelper DatabaseProviderFactoryHelper { get; }
-        
+        /// <returns>
+        /// The connection in an unopened state.
+        /// </returns>
+        IDbConnection CreateConnection();
+
+        /// <summary>
+        /// Creates the command.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="connection">The connection.</param>
+        /// <returns>
+        /// The command.
+        /// </returns>
+        IDbCommand CreateCommand(string commandText, IDbConnection connection);
+
+        /// <summary>
+        /// Creates the parameter.
+        /// </summary>
+        /// <param name="parameterName">Name of the parameter.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="databaseType">Type of the database.</param>
+        /// <returns>
+        /// The parameter.
+        /// </returns>
+        DbParameter CreateParameter(string parameterName, object value, DbType databaseType);
+
         /// <summary>
         /// Executes the SQL.
         /// </summary>

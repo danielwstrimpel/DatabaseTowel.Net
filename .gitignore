@@ -1,5 +1,7 @@
+.vs/
 [Bb]in/
 [Oo]bj/
+[Pp]ackage/
+*.nupkg
 *.suo
 *.user
-.vs/
