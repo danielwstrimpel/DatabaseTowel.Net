@@ -52,6 +52,7 @@
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
+        /// <param name="errorContext">The error context.</param>
         /// <returns>
         /// The result of execution of the scalar stored procedure.
         /// </returns>
@@ -101,6 +102,7 @@
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
+        /// <param name="errorContext">The error context.</param>
         /// <returns>
         /// The result of execution of the scalar stored procedure.
         /// </returns>

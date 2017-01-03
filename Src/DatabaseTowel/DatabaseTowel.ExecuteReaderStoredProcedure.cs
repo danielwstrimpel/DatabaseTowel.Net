@@ -9,166 +9,146 @@
     public partial class DatabaseTowel : IExecuteReaderStoredProcedure
     {
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table.
+        /// Executes the reader stored procedure, running the context given.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
         /// Failed to successfully execute the reader stored procedure.
         /// </exception>
-        public DataTable ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters)
+        public void ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, Action<IDataReader> readContext)
         {
-            DataTable result = null;
-
-            this.ExecuteSql(connection => result = this.ExecuteReaderStoredProcedure(storedProcedureName, parameters, connection));
-
-            return result;
+            this.ExecuteSql(connection => this.ExecuteReaderStoredProcedure(storedProcedureName, parameters, connection, readContext));
         }
 
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table.
+        /// Executes the reader stored procedure, running the context given.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
+        /// <param name="readContext">The read context.</param>
         /// <param name="errorContext">The error context.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
-        public DataTable ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, Func<DatabaseTowelException, DataTable> errorContext)
+        public void ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, Action<IDataReader> readContext, Action<DatabaseTowelException> errorContext)
         {
             try
             {
-                return this.ExecuteReaderStoredProcedure(storedProcedureName, parameters);
+                this.ExecuteReaderStoredProcedure(storedProcedureName, parameters, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return errorContext(ex);
+                errorContext(ex);
             }
         }
 
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table.
+        /// Executes the reader stored procedure, running the context given.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
         /// Failed to successfully execute the reader stored procedure.
         /// </exception>
-        public DataTable ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection)
+        public void ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Action<IDataReader> readContext)
         {
-            return this.ExecuteReaderStoredProcedure(
+            this.ExecuteReaderStoredProcedure(
                 storedProcedureName,
                 parameters,
                 connection,
+                readContext,
                 ex => { throw new DatabaseTowelException(DatabaseTowelExceptionType.CommandExecuteReaderStoredProcedureFailed, "Failed to successfully execute the reader stored procedure.", ex); });
         }
 
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table.
+        /// Executes the reader stored procedure, running the context given.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
-        public DataTable ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<DatabaseTowelException, DataTable> errorContext)
+        /// <param name="readContext">The read context.</param>
+        /// <param name="errorContext">The error context.</param>
+        public void ExecuteReaderStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Action<IDataReader> readContext, Action<DatabaseTowelException> errorContext)
         {
             using (var command = this.CreateCommand(storedProcedureName, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddMany(parameters);
 
-                return this.ExecuteReader(command, errorContext);
+                this.ExecuteReader(command, readContext, errorContext);
             }
         }
 
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table, asynchronously.
+        /// Executes the reader stored procedure, running the context given, asynchronously.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
         /// Failed to successfully execute the reader stored procedure.
         /// </exception>
-        public async Task<DataTable> ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters)
+        public async Task ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, Func<IDataReader, Task> readContext)
         {
-            DataTable result = null;
-
-            await this.ExecuteSqlAsync(async connection => result = await this.ExecuteReaderStoredProcedureAsync(storedProcedureName, parameters, connection));
-
-            return result;
+            await this.ExecuteSqlAsync(async connection => await this.ExecuteReaderStoredProcedureAsync(storedProcedureName, parameters, connection, readContext));
         }
 
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table, asynchronously.
+        /// Executes the reader stored procedure, running the context given, asynchronously.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
+        /// <param name="readContext">The read context.</param>
         /// <param name="errorContext">The error context.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
-        public async Task<DataTable> ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, Func<DatabaseTowelException, Task<DataTable>> errorContext)
+        public async Task ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, Func<IDataReader, Task> readContext, Func<DatabaseTowelException, Task<DataTable>> errorContext)
         {
             try
             {
-                return await this.ExecuteReaderStoredProcedureAsync(storedProcedureName, parameters);
+                await this.ExecuteReaderStoredProcedureAsync(storedProcedureName, parameters, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return await errorContext(ex);
+                await errorContext(ex);
             }
         }
 
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table, asynchronously.
+        /// Executes the reader stored procedure, running the context given, asynchronously.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
         /// Failed to successfully execute the reader stored procedure.
         /// </exception>
-        public async Task<DataTable> ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection)
+        public async Task ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<IDataReader, Task> readContext)
         {
-            return await this.ExecuteReaderStoredProcedureAsync(
+            await this.ExecuteReaderStoredProcedureAsync(
                 storedProcedureName,
                 parameters,
                 connection,
+                readContext,
                 ex => { throw new DatabaseTowelException(DatabaseTowelExceptionType.CommandExecuteReaderStoredProcedureFailed, "Failed to successfully execute the reader stored procedure.", ex); });
         }
 
         /// <summary>
-        /// Executes the reader stored procedure, returning the results as a data table, asynchronously.
+        /// Executes the reader stored procedure, running the context given, asynchronously.
         /// </summary>
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader stored procedure.
-        /// </returns>
-        public async Task<DataTable> ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<DatabaseTowelException, Task<DataTable>> errorContext)
+        /// <param name="readContext">The read context.</param>
+        /// <param name="errorContext">The error context.</param>
+        public async Task ExecuteReaderStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<IDataReader, Task> readContext, Func<DatabaseTowelException, Task<DataTable>> errorContext)
         {
             using (var command = this.CreateCommand(storedProcedureName, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddMany(parameters);
 
-                return await this.ExecuteReaderAsync(command, errorContext);
+                await this.ExecuteReaderAsync(command, readContext, errorContext);
             }
         }
     }

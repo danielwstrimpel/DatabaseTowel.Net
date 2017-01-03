@@ -63,6 +63,7 @@
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
+        /// <param name="errorContext">The error context.</param>
         public void ExecuteNonQueryStoredProcedure(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Action<DatabaseTowelException> errorContext)
         {
             using (var command = this.CreateCommand(storedProcedureName, connection))
@@ -129,6 +130,7 @@
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
+        /// <param name="errorContext">The error context.</param>
         public async Task ExecuteNonQueryStoredProcedureAsync(string storedProcedureName, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<DatabaseTowelException, Task> errorContext)
         {
             using (var command = this.CreateCommand(storedProcedureName, connection))

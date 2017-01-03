@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DatabaseTowel</id>
-    <version>$version$</version>
+    <version>2.1.0</version>
     <title>DatabaseTowel.Net</title>
     <description>DatabaseTowel.Net helps keep your ADO.Net code DRY and testable.</description>
     <authors>Daniel W strimpel</authors>

@@ -9,160 +9,159 @@
     public partial class DatabaseTowel : IExecuteReader
     {
         /// <summary>
-        /// Executes the command, returing the results as a data table.
+        /// Executes the reader command, running the context given.
         /// </summary>
         /// <param name="command">The command.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
         /// The command parameter is required.
         /// or
-        /// Failed to successfully execute the command.
+        /// The readContext parameter is required.
+        /// or
+        /// Failed to successfully execute the reader command.
         /// </exception>
-        public DataTable ExecuteReader(IDbCommand command)
+        public void ExecuteReader(IDbCommand command, Action<IDataReader> readContext)
         {
             if (command == null)
             {
                 throw new DatabaseTowelException(DatabaseTowelExceptionType.InvalidArgument, "The command parameter is required.", new ArgumentNullException("command"));
+            }
+
+            if (readContext == null)
+            {
+                throw new DatabaseTowelException(DatabaseTowelExceptionType.InvalidArgument, "The readContext parameter is required.", new ArgumentNullException("readContext"));
             }
 
             try
             {
                 using (var reader = command.ExecuteReader())
                 {
-                    return this.DataReaderToDataTable(reader);
+                    readContext(reader);
                 }
             }
             catch (ArgumentException ex)
             {
-                throw new DatabaseTowelException(DatabaseTowelExceptionType.CommandExecuteFailed, "Failed to successfully execute the command.", ex);
+                throw new DatabaseTowelException(DatabaseTowelExceptionType.CommandExecuteFailed, "Failed to successfully execute the reader command.", ex);
             }
             catch (DbException ex)
             {
-                throw new DatabaseTowelException(DatabaseTowelExceptionType.CommandExecuteFailed, "Failed to successfully execute the command.", ex);
+                throw new DatabaseTowelException(DatabaseTowelExceptionType.CommandExecuteFailed, "Failed to successfully execute the reader command.", ex);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table.
+        /// Executes the reader command, running the context given.
         /// </summary>
         /// <param name="command">The command.</param>
+        /// <param name="readContext">The read context.</param>
         /// <param name="errorContext">The error context.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
-        public DataTable ExecuteReader(IDbCommand command, Func<DatabaseTowelException, DataTable> errorContext)
+        public void ExecuteReader(IDbCommand command, Action<IDataReader> readContext, Action<DatabaseTowelException> errorContext)
         {
             try
             {
-                return this.ExecuteReader(command);
+                this.ExecuteReader(command, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return errorContext(ex);
+                errorContext(ex);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table.
+        /// Executes the reader command, running the context given.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
-        /// Failed to successfully execute the command.
+        /// Failed to successfully execute the reader command.
         /// </exception>
-        public DataTable ExecuteReader(string commandText, IEnumerable<DbParameter> parameters)
+        public void ExecuteReader(string commandText, IEnumerable<DbParameter> parameters, Action<IDataReader> readContext)
         {
-            DataTable result = null;
-
-            this.ExecuteSql(connection => result = this.ExecuteReader(commandText, parameters, connection));
-
-            return result;
+            this.ExecuteSql(connection => this.ExecuteReader(commandText, parameters, connection, readContext));
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table.
+        /// Executes the reader command, running the context given.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
+        /// <param name="readContext">The read context.</param>
         /// <param name="errorContext">The error context.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
-        public DataTable ExecuteReader(string commandText, IEnumerable<DbParameter> parameters, Func<DatabaseTowelException, DataTable> errorContext)
+        public void ExecuteReader(string commandText, IEnumerable<DbParameter> parameters, Action<IDataReader> readContext, Action<DatabaseTowelException> errorContext)
         {
             try
             {
-                return this.ExecuteReader(commandText, parameters);
+                this.ExecuteReader(commandText, parameters, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return errorContext(ex);
+                errorContext(ex);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table.
+        /// Executes the reader command, running the context given.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
-        /// Failed to successfully execute the command.
+        /// Failed to successfully execute the reader command.
         /// </exception>
-        public DataTable ExecuteReader(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection)
+        public void ExecuteReader(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection, Action<IDataReader> readContext)
         {
             using (var command = this.CreateCommand(commandText, connection))
             {
                 command.Parameters.AddMany(parameters);
 
-                return this.ExecuteReader(command);
+                this.ExecuteReader(command, readContext);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table.
+        /// Executes the reader command, running the context given.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
-        public DataTable ExecuteReader(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<DatabaseTowelException, DataTable> errorContext)
+        /// <param name="readContext">The read context.</param>
+        /// <param name="errorContext">The error context.</param>
+        public void ExecuteReader(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection, Action<IDataReader> readContext, Action<DatabaseTowelException> errorContext)
         {
             try
             {
-                return this.ExecuteReader(commandText, parameters, connection);
+                this.ExecuteReader(commandText, parameters, connection, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return errorContext(ex);
+                errorContext(ex);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table, asynchronously.
+        /// Executes the reader command, running the context given, asynchronously.
         /// </summary>
         /// <param name="command">The command.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
-        /// Failed to successfully execute the command.
+        /// The command parameter is required.
+        /// or
+        /// The readContext parameter is required.
+        /// or
+        /// Failed to successfully execute the reader command.
         /// </exception>
-        public async Task<DataTable> ExecuteReaderAsync(IDbCommand command)
+        public async Task ExecuteReaderAsync(IDbCommand command, Func<IDataReader, Task> readContext)
         {
             if (command == null)
             {
                 throw new DatabaseTowelException(DatabaseTowelExceptionType.InvalidArgument, "The command parameter is required.", new ArgumentNullException("command"));
+            }
+
+            if (readContext == null)
+            {
+                throw new DatabaseTowelException(DatabaseTowelExceptionType.InvalidArgument, "The readContext parameter is required.", new ArgumentNullException("readContext"));
             }
 
             try
@@ -173,14 +172,14 @@
                 {
                     using (var reader = command.ExecuteReader())
                     {
-                        return this.DataReaderToDataTable(reader);
+                        await readContext(reader);
                     }
                 }
                 else
                 {
                     using (var reader = await (command as DbCommand).ExecuteReaderAsync())
                     {
-                        return await this.DataReaderToDataTableAsync(reader);
+                        await readContext(reader);
                     }
                 }
             }
@@ -191,106 +190,93 @@
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table, asynchronously.
+        /// Executes the reader command, running the context given, asynchronously.
         /// </summary>
         /// <param name="command">The command.</param>
+        /// <param name="readContext">The read context.</param>
         /// <param name="errorContext">The error context.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
-        public async Task<DataTable> ExecuteReaderAsync(IDbCommand command, Func<DatabaseTowelException, Task<DataTable>> errorContext)
+        public async Task ExecuteReaderAsync(IDbCommand command, Func<IDataReader, Task> readContext, Func<DatabaseTowelException, Task> errorContext)
         {
             try
             {
-                return await this.ExecuteReaderAsync(command);
+                await this.ExecuteReaderAsync(command, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return await errorContext(ex);
+                await errorContext(ex);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table, asynchronously.
+        /// Executes the reader command, running the context given, asynchronously.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
-        /// Failed to successfully execute the command.
+        /// Failed to successfully execute the reader command.
         /// </exception>
-        public async Task<DataTable> ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters)
+        public async Task ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters, Func<IDataReader, Task> readContext)
         {
-            DataTable result = null;
-
-            await this.ExecuteSqlAsync(async connection => result = await this.ExecuteReaderAsync(commandText, parameters, connection));
-
-            return result;
+            await this.ExecuteSqlAsync(async connection => await this.ExecuteReaderAsync(commandText, parameters, connection, readContext));
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table, asynchronously.
+        /// Executes the reader command, running the context given, asynchronously.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
+        /// <param name="readContext">The read context.</param>
         /// <param name="errorContext">The error context.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
-        public async Task<DataTable> ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters, Func<DatabaseTowelException, Task<DataTable>> errorContext)
+        public async Task ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters, Func<IDataReader, Task> readContext, Func<DatabaseTowelException, Task> errorContext)
         {
             try
             {
-                return await this.ExecuteReaderAsync(commandText, parameters);
+                await this.ExecuteReaderAsync(commandText, parameters, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return await errorContext(ex);
+                await errorContext(ex);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table, asynchronously.
+        /// Executes the reader command, running the context given, asynchronously.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
+        /// <param name="readContext">The read context.</param>
         /// <exception cref="DatabaseTowelException">
-        /// Failed to successfully execute the command.
+        /// Failed to successfully execute the reader command.
         /// </exception>
-        public async Task<DataTable> ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection)
+        public async Task ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<IDataReader, Task> readContext)
         {
             using (var command = this.CreateCommand(commandText, connection))
             {
                 command.Parameters.AddMany(parameters);
 
-                return await this.ExecuteReaderAsync(command);
+                await this.ExecuteReaderAsync(command, readContext);
             }
         }
 
         /// <summary>
-        /// Executes the command, returing the results as a data table, asynchronously.
+        /// Executes the reader command, running the context given, asynchronously.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="connection">The connection.</param>
-        /// <returns>
-        /// The result of execution of the reader command.
-        /// </returns>
-        public async Task<DataTable> ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<DatabaseTowelException, Task<DataTable>> errorContext)
+        /// <param name="readContext">The read context.</param>
+        /// <param name="errorContext">The error context.</param>
+        public async Task ExecuteReaderAsync(string commandText, IEnumerable<DbParameter> parameters, IDbConnection connection, Func<IDataReader, Task> readContext, Func<DatabaseTowelException, Task> errorContext)
         {
             try
             {
-                return await this.ExecuteReaderAsync(commandText, parameters, connection);
+                await this.ExecuteReaderAsync(commandText, parameters, connection, readContext);
             }
             catch (DatabaseTowelException ex)
             {
-                return await errorContext(ex);
+                await errorContext(ex);
             }
         }
     }
