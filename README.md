@@ -15,6 +15,7 @@ of these problems.
 ## Table of Contents
 
 + [Installation](#installation)
++ [Getting Started](#getting-started)
 + [Usage](#usage)
   + [DatabaseTowel Initialization](#databasetowel-initialization)
   + [CreateConnection Method](#createconnection-method)
@@ -40,6 +41,82 @@ To install DatabaseTowel.Net, run the following command in the Package Manager C
 ```bash
 Install-Package DatabaseTowel
 ```
+
+## Tutorial
+
+To get a database connection to work with you can use either the `ExecuteSql` and `ExecuteSqlTransaction` methods, the
+latter of which will wrap the code in a transaction. These methods will handle creating/opening the connection and
+wrapping the code to catch database exceptions that occur, giving you the ability to handle them or throw your own
+exception.
+
+```csharp
+towel.ExecuteSql(connection =>
+{
+	// you can use the connection to interact with the database
+});
+```
+
+You can run the code asynchronously by appending **Async** to the end of the method name.
+
+```csharp
+await towel.ExecuteSqlAsync(async connection =>
+{
+	// you can use the connection to interact with the database
+});
+```
+
+The methods accept an optional error context to run when an exception happens (handling of DbException is done in all
+library code calls to the database). The typical use case would be to wrap this exception with your own (so you don't
+need to wrap a try/catch every time), but could be some additional code that you want to run.
+
+```csharp
+towel.ExecuteSql(connection =>
+{
+	...
+},
+ex => { throw new OwnLibraryException("Throw your own exception or do something else instead.", ex); });
+```
+
+The higher-level helper methods should cover most cases for database access that you'll need. These methods all have
+asynchronous versions by appending `Async` to the end of the method name.
+
++ `ExecuteScalar` - Executes query that returns single value
++ `ExecuteNonQuery` - Executes query that returns no value
++ `ExecuteReader` - Executes query that returns one or more records
++ `ExecuteStoredProcedure` - Executes a stored procedure, returning results as a `DataTable`
++ `ExecuteScalarStoredProcedure` - Executes a stored procedure that returns a single value
+
+If you need to execute more than one command on a connection, there are versions of the method to call passing in
+the connection to use (and thus require the use of the `ExecuteSql` and `ExecuteSqlTransaction` methods).
+
+```csharp
+towel.ExecuteSql(connection =>
+{
+	var parameters = new List<DbParameter> { };
+	var scalar1 = towel.ExecuteScalar("[Command #1 text]", parameters, connection);
+	var scalar2 = towel.ExecuteScalar("[Command #2 text]", parameters, connection);
+});
+```
+
+If you only need to execute a single command, there are versions of the method to call ommitting the connection and
+will handle it all for you (without a transaction) - meaning that you do not need to use the `ExecuteSql` method in
+your code.
+
+```csharp
+var parameters = new List<DbParameter> { };
+var scalar1 = towel.ExecuteScalar("[Command #1 text]", parameters);
+```
+
+These versions of the methods accept the optional error context as well.
+
+```csharp
+var parameters = new List<DbParameter> { };
+var scalar1 = towel.ExecuteScalar("[Command #1 text]", parameters,
+    ex => { throw new OwnLibraryException("Throw your own exception or do something else instead.", ex); });
+```
+
+There are other methods/use cases available, but these are the typical uses. For more lower-level access beyond what
+the higher-level helper methods offer, refer to the usage documentation to see what is available.
 
 ## Usage
 
@@ -93,7 +170,8 @@ var command = towel.CreateCommand("[Command Text]", connection);
 
 ### CreateParameter Method
 
-**_TODO: Missing details_**
+This method creates the parameters to pass into a command. You should always use parameterized query statements instead
+of putting directly into a command statement.
 
 ```csharp
 var parameter = towel.CreateParameter("@foo", "bar", DbType.String);
@@ -104,7 +182,7 @@ var parameter = towel.CreateParameter("@foo", "bar", DbType.String);
 **_TODO: Missing details_**
 
 ```csharp
-var dataTable = towel.ExecuteSql(connection =>
+towel.ExecuteSql(connection =>
     {
         ...
     }
@@ -116,7 +194,7 @@ var dataTable = towel.ExecuteSql(connection =>
 **_TODO: Missing details_**
 
 ```csharp
-var dataTable = towel.ExecuteSqlTransaction(connection =>
+towel.ExecuteSqlTransaction(connection =>
     {
         ...
     }

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DatabaseTowel</RootNamespace>
     <AssemblyName>DatabaseTowel</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -42,8 +42,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatabaseTowel.ExecuteNonQuery.cs" />
+    <Compile Include="DatabaseTowel.ExecuteNonQueryStoredProcedure.cs" />
+    <Compile Include="DatabaseTowel.ExecuteScalarStoredProcedure.cs" />
+    <Compile Include="DatabaseTowel.ExecuteReaderStoredProcedure.cs" />
+    <Compile Include="DatabaseTowel.ExecuteReader.cs" />
+    <Compile Include="DatabaseTowel.ExecuteScalar.cs" />
+    <Compile Include="DatabaseTowel.ExecuteSqlTransaction.cs" />
+    <Compile Include="DatabaseTowel.ExecuteSql.cs" />
     <Compile Include="DbProviderFactoryHelper.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="IExecuteNonQueryStoredProcedure.cs" />
+    <Compile Include="IExecuteScalarStoredProcedure.cs" />
+    <Compile Include="IExecuteReaderStoredProcedure.cs" />
+    <Compile Include="IExecuteReader.cs" />
+    <Compile Include="IExecuteScalar.cs" />
+    <Compile Include="IExecuteNonQuery.cs" />
+    <Compile Include="IExecuteSqlTransaction.cs" />
+    <Compile Include="IExecuteSql.cs" />
     <Compile Include="IDbProviderFactoryHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DatabaseTowelException.cs" />
